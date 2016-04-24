@@ -196,6 +196,7 @@ pecMainInstance.switchedViewCallback()
 ```
 
 ###clickedOnEventInEventListCallback
+This fires whenever a user clicked in eventList when calendar is unlocked. You can use this for your GUI - for example, unlock button triple-blink, change date button triple-blink etc.
 
 when you develop you can call it manually by
 
@@ -221,7 +222,28 @@ pecMainInstance.smartEventDescription()
 
 
 ##Handle events
-
+<table class="table table-bordered table-striped bs-events-table">
+<thead>
+	<tr>
+		<th>Event Type</th>
+		<th>Description</th>
+	</tr>
+		</thead>
+	<tbody>
+		<tr>
+			<td>newDataLoaded</td>
+			<td>This event fires whenever JSON data were loaded or reloaded.</td>
+		</tr>
+		<tr>
+			<td>eventListGenerated</td>
+			<td>This event fires whenever eventList was repaint.</td>
+		</tr>
+		<tr>
+			<td>blockedUserClick</td>
+			<td>This event fires whenever a user clicked on eventList when calendar is locked.</td>
+		</tr>
+	</tbody>
+</table>
 
 ###newDataLoaded
 
@@ -241,8 +263,10 @@ jQuery('#eventCalendarLimit').on('newDataLoaded', function(event)
 	});
 ```
 
+Protip: use `on()` for firing every time, `one()` for firing only for the first-time.
+
 ###eventListGenerated
-on() for every time, one() for one-time
+This event fires whenever eventList was repaint.
 
 ```js
 jQuery('#eventCalendarLimit').one('eventListGenerated', function(event)
@@ -258,12 +282,15 @@ jQuery('#eventCalendarLimit').on('eventListGenerated', function(event)
 	});
 ```
 
+Protip: use `on()` for firing every time, `one()` for firing only for the first-time.
+
 ###blockedUserClick
+This event fires whenever a user clicked on eventList when calendar is locked. You can use this for your GUI - for example, unlock button triple-blink, change date button triple-blink etc.
 
 ```js
 jQuery('#eventCalendarLimit').on('blockedUserClick', function(event)
  	{
-	console.log("blockedUserClick event: A user clicked on a locked calendar. You can use it for UI - for example, unlock button triple-blink, change date button triple-blink...")
+	console.log("blockedUserClick event: A user clicked on a locked calendar.")
  	});
 ```
 
