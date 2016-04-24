@@ -15,15 +15,16 @@ Currently only an API is open sourced. If you are interested let me know!
 ##Features
 
 ###frontend features
- * 1
- * 2
+ * seamless autorefresh
+ * single moment, allday and multiday events support
  * 3
 
 
 ###developer features
- * 1
- * 2
- * 3
+ * written in jQuery
+ * compatible with AngularJS
+ * fully customizable eventList content and behavior
+ * you can connect it to your app, or indirectly to any external service like Google Calendar
 
 ##Public methods
 
@@ -96,13 +97,155 @@ datetime must be a moment() object
 ecMainInstance.highlightEvent(datetime, repaintViewNow, repaintEventListNow)
 ```
 
+##Callbacks
+
+###switchedViewCallback
+
+```js
+ecMainInstance.removeEventSelection()
+```
+
+###clickedOnEventInEventListCallback
+
+```js
+ecMainInstance.removeEventSelection()
+```
+
+###refreshCallback
+
+```js
+ecMainInstance.removeEventSelection()
+```
+
+###smartEventDescription
+
+```js
+ecMainInstance.removeEventSelection()
+
+
+```
+
+
+// switchedViewCallback
+// clickedOnEventInEventListCallback
+// refreshCallback
+// smartEventDescription
+
+##Handle events
+
+
+###newDataLoaded
+
+```js
+jQuery('#eventCalendarLimit').one('newDataLoaded', function(event)
+	{
+	console.log("Events loaded from JSON for the first time, you can now switch views or highlight any event.");
+	console.log(event)
+	});
+```
+
+```js
+jQuery('#eventCalendarLimit').on('newDataLoaded', function(event)
+	{
+	console.log("Events loaded from JSON, you can now switch views or highlight any event.");
+	console.log(event)
+	});
+```
+
+###eventListGenerated
+on() for every time, one() for one-time
+
+```js
+jQuery('#eventCalendarLimit').one('eventListGenerated', function(event)
+	{
+	console.log("Events loaded & displayed for the first time.")
+	});
+```
+
+```js
+jQuery('#eventCalendarLimit').on('eventListGenerated', function(event)
+	{
+	console.log("Events loaded & displayed. Fires also on every ajax refresh.")
+	});
+```
+
+###blockedUserClick
+
+```js
+jQuery('#eventCalendarLimit').on('blockedUserClick', function(event)
+ 	{
+	console.log("blockedUserClick event: A user clicked on a locked calendar. You can use it for UI - for example, unlock button triple-blink, change date button triple-blink...")
+ 	});
+```
+
+##JSON format
+```json
+[{startDate: "2016-04-25T11:15:00+0000", endDate: "2016-04-25T12:15:00+0000", id: 25, type: "available"},{startDate: "2016-04-25T15:15:00+0000", endDate: "2016-04-25T17:45:00+0000", id: 26, type: "full"}]
+```
+
+##Object format
+
+###event object
+```js
+ecMainInstance.getEvent(28)
+```
+
+```js
+Object
+	{
+	startDate: "2016-04-24T13:45:00+0000",
+	endDate: "2016-04-24T20:00:00+0000",
+	id: 28,
+	type: "available"
+	}
+```
+
+###eventsStorage object
+Array of `event` objects.
+```js
+ecMainInstance.getEventsStorage()
+```
+
+```js
+[ Object, Object, Object, Object, Object, ... ]
+```
+
+### Translate
+
+```js
+pecCzechLanguageSet =
+	{
+	subtitleSelectedDay: '{0}',
+	nextMonth:         'další měsíc',
+	prevMonth:         'předchozí měsíc',
+	nextEvents:        'nejbližší volné termíny:',
+	viewMore:          'podrobnosti »',
+	networkError:      'Chyba při načítání dat.',
+	jsonFormatError:   'Chyba při načítání dat.',
+	today:             'dnes',
+	tomorrow:          'zítra',
+	dayAfterTomorrow:  'pozítří',
+	yesterday:         'včera',
+	closed:            '',
+	noEventsThisDay:   'termíny pro tento den nevypsány',
+	noEventsThisMonth: 'termíny pro tento měsíc nevypsány',
+	noUpcomingEvents:  'žádné volné termíny nebyly vypsány',
+	withEvents:        '',
+	lastItemText:      '', //V ostatní dny se na Vás těšíme ve standardní otevírací dobu.',
+	businessHoursText: '', //Těšíme se na vás v {0} hod!
+	monthNames:    [ 'leden', 'únor', 'březen', 'duben', 'květen', 'červen', 'červenec', 'srpen', 'září', 'říjen', 'listopad', 'prosinec' ],
+	dayNames:      [ 'pondělí', 'úterý', 'středa', 'čtvrtek', 'pátek', 'sobota', 'neděle'],
+	nextDayNames:  [ 'toto pondělí', 'toto úterý', 'tuto středu', 'tento čtvrtek', 'tento pátek', 'tuto sobotu', 'tuto neděli'],
+	dayNamesShort: [ 'Ne', 'Po', 'Út', 'St', 'Čt', 'Pá', 'So' ],
+	}
+```
 
 ### All the options
 
 Here are all the options and their defaults
 
 ```js
-ecMainInstance = jQuery('#eventCalendarLimit').eventCalendar(
+pecMainInstance = jQuery('#eventCalendarLimit').eventCalendar(
 	{
     jsonData:              null,   // JSON string or feed URL
 	pollingInterval:       0,      // autorefresh JSON feed [number of seconds]
@@ -160,4 +303,4 @@ ecMainInstance = jQuery('#eventCalendarLimit').eventCalendar(
 
 ##Source code
 
-bbitch-event-calendar.js is a fully functional stable closed-source library. We are currently considering to open source it. If you are interested let me know.
+plutanium-event-calendar.js is a fully functional stable closed-source library. We are currently considering to open sourcing it. If you are interested let me know.
