@@ -2,6 +2,42 @@
 Plutanium Event Calendar is an event calendar for restaurants, sidebars, calendar widgets, order forms with appointment picker, event list. Written in jquery, usable with angular. Data are served in JSON.
 Currently only an API is open sourced. If you are interested let me know!
 
+##Features
+
+###frontend features
+ * can be integrated with you app or website
+ * seamless autorefresh on background
+ * single moment, allday and multiday events support
+ * uses CSS flex model
+ * can be used for reservations – available/full/nonworking day colors
+ * set the boundaries user can navigate in ()
+ * easily translate to your language
+
+
+###developer features
+ * written in jQuery
+ * compatible with AngularJS and moment.js
+ * fully customizable eventList content and behavior
+ * you can connect it to your app, or indirectly to any external service like Google Calendar, custom Wordpress plugin etc.
+ * show standard business hours on top of the event list
+ * multiple calendar instances with different settings on a same webpage possible
+
+##Use cases
+
+###Restaurant, Hotel, Club organizing events for people
+ * show business hours for every day in event feed header
+ * show WE'RE CLOSED message on top of event feed on days you are out of business.
+ * set your standard week business days in the settings, provide additional "We're closed today" events in JSON feed to close anytime.
+
+###Order system
+ * show available/full appointments, nonworking days
+ * use it as a date picker for your order form
+ * lock calendar and highlight the ordered appointment
+
+###Blog
+ * show your blog posts in a calendar widget
+ * show your blog posts in a calendar widget, together with your public google calendar feed and facebook feed
+
 ##Getting started
 
 ###Browser
@@ -12,45 +48,18 @@ Currently only an API is open sourced. If you are interested let me know!
 <script src="plutanium-event-calendar.js"></script>
 ```
 
-##Features
+##Your javascript file
 
-###frontend features
- * can be integrated with you app or website
- * seamless autorefresh on background
- * single moment, allday and multiday events support
- * show business hours on top of event feed
- * uses CSS flex model
-
-
-###developer features
- * written in jQuery
- * compatible with AngularJS and moment.js
- * fully customizable eventList content and behavior
- * you can connect it to your app, or indirectly to any external service like Google Calendar, custom Wordpress plugin etc.
- * show standard business hours on top of the event list
-
-##Use cases
-
-###Restaurant, Hotel, Club organizing events for people
- * 
-
-###Order system
-
-###Blog
-* show your blog posts in a calendar widget
-* show your blog posts together with your public google calendar and facebook and twitter
-
-##Get started
 ```js
 ecMainInstance = jQuery('#eventCalendarWidget').eventCalendar(options)
 ```
 
+
+
 ##Object format
 
 ###event object
-```js
-ecMainInstance.getEvent(28)
-```
+one event
 
 ```js
 Object
@@ -65,10 +74,6 @@ Object
 ###eventsStorage object
 Array of `event` objects.
 ```js
-ecMainInstance.getEventsStorage()
-```
-
-```js
 [ Object, Object, Object, Object, Object, ... ]
 ```
 
@@ -78,38 +83,48 @@ ecMainInstance.getEventsStorage()
 ###refresh
 Redownload JSON data and repaint calendar&eventlist.
 ```js
-ecMainInstance.refresh()
+pecMainInstance.refresh()
 ```
 
 ###repaint
 just html refresh, this does not redownload data
 ```js
-ecMainInstance.repaint()
+pecMainInstance.repaint()
 ```
 
 ###switchView
 
 ```js
-ecMainInstance.switchView(datetime, switchTo, forceRefresh)
+pecMainInstance.switchView(datetime, switchTo, forceRefresh)
 ```
 
 ###disableEventSelection
 
 ```js
-ecMainInstance.disableEventSelection()
+pecMainInstance.disableEventSelection()
 ```
 
 ###enableEventSelection
 
 ```js
-ecMainInstance.enableEventSelection()
+pecMainInstance.enableEventSelection()
 ```
 
 ###selectEvent
-zvoli termin podle jeho ID, to same jak kdyz uzivatel na nej klikne. Potom muze uzivatel zas kliknout jinam. Pozor opravdu jej jen zvoli, a to i kdyz neni zrovna videt! Typicky chces jeste dodatecne skocit na to datum aby videt bylo, takze zavolas jeste `switchView('day', datetime), resp. switchView('day', moment(getSelectedEvent().startDate))`. Vraci true/false podle toho jestli se selection zdaril (false=termin neexistuje)
+Select event by its ID. It is similar to user click on item in eventlist.
 
 ```js
-ecMainInstance.selectEvent(id)
+pecMainInstance.selectEvent(id)
+```
+
+Returns `true` if successful.
+Returns `false` if the event ID does not exists in eventsStorage.
+
+The selected event may not be visible.
+In typical usecase, you may also want the calendar and eventlist to jump to the date, to see the selected event in eventlist. Then call:
+
+```js
+pecMainInstance.switchView('day', datetime), resp. switchView('day', moment(getSelectedEvent().startDate))
 ```
 
 ###getEvent
@@ -118,21 +133,29 @@ ecMainInstance.selectEvent(id)
 ecMainInstance.getEvent()
 ```
 
+Returns an `event` object
+
 ###getSelectedEvent
 
 ```js
 ecMainInstance.getSelectedEvent()
 ```
 
-returns an `event` object
+Returns an `event` object
 
-###getSelectedEvent
+###getEventStorage
 
 ```js
 ecMainInstance.getEventsStorage()
 ```
 
+Returns array of `event` objects.
+```js
+[ Object, Object, Object, Object, Object, ... ]
+```
+
 ###removeEventSelection
+Removes a userclick selection in eventList.
 
 ```js
 ecMainInstance.removeEventSelection()
@@ -143,42 +166,59 @@ oznaci termin jako jako objednany, uzivatel muze klikat jinam ale zvyrazneni zus
 datetime must be a moment() object
 
 ```js
-ecMainInstance.highlightEvent(datetime, repaintViewNow, repaintEventListNow)
+pecMainInstance.highlightEvent(datetime, repaintViewNow, repaintEventListNow)
 ```
 
 ##Callbacks
 
 ###switchedViewCallback
+Called for 
+```js
+smartEventDescription: function (event, eventIsHighlighted)
+	{
+	if (eventIsHighlighted)
+		return "Your ordered appointment.";
+
+	if (event.type == "full")
+		return "Full";
+
+	if (event.type == "available")
+		return "Available";
+	
+	return event.description; // description from json feed
+	}
+```
+
+when you develop you can call it manually by
 
 ```js
-ecMainInstance.removeEventSelection()
+pecMainInstance.switchedViewCallback()
 ```
 
 ###clickedOnEventInEventListCallback
 
+when you develop you can call it manually by
+
 ```js
-ecMainInstance.removeEventSelection()
+pecMainInstance.clickedOnEventInEventListCallback()
 ```
 
 ###refreshCallback
 
+when you develop you can call it manually by
+
 ```js
-ecMainInstance.removeEventSelection()
+pecMainInstance.refreshCallback()
 ```
 
 ###smartEventDescription
 
+when you develop you can call it manually by
+
 ```js
-ecMainInstance.removeEventSelection()
-
-
+pecMainInstance.smartEventDescription()
 ```
 
-
-// switchedViewCallback
-// clickedOnEventInEventListCallback
-// refreshCallback
-// smartEventDescription
 
 ##Handle events
 
@@ -324,5 +364,4 @@ options =
 ```
 
 ##Source code
-
 plutanium-event-calendar.js is a fully functional stable closed-source library. We are currently considering to open sourcing it. If you are interested let me know.
