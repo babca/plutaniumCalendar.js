@@ -53,9 +53,12 @@ Only API is open sourced at the moment. If you are interested in the library let
 <link rel="stylesheet" href="css/eventCalendar.css" type="text/css" media="all">
 <link rel="stylesheet" href="css/eventCalendarTheme.css" type="text/css" media="all">
 
-<script src="moment.min.js"></script>
-<script src="twix.min.js"></script>
-<script src="plutanium-event-calendar.js"></script>
+<script src="js/moment-with-locales.min.js"></script>
+<script src="js/moment-timezone.js"></script>
+<script src="js/twix.min.js"></script>
+<script src="js/plutanium-event-calendar.js"></script>
+
+<div id='eventCalendarWidget'></div>
 ```
 
 ###Your javascript file
@@ -407,7 +410,7 @@ jQuery('#eventCalendarLimit').on('blockedUserClick', function(event)
 		</tr>
 		<tr>
 			<td>businessHours</td>
-			<td>[false,false,false,false,false,false,false],</td>
+			<td>[false,false,false,false,false,false,false]</td>
 			<td></td>
 			<td>like '11:00-21:00,11:00-22:00,11:00-22:00,11:00-22:00,11:00-22:00,11:00-23:00,11:00-23:00' // sunday,monday,tuesday...,saturday</td>
 		</tr>
@@ -426,7 +429,7 @@ jQuery('#eventCalendarLimit').on('blockedUserClick', function(event)
 		<tr>
 			<td>dateRangeIntradayFormat</td>
 			<td>['D. MMMM H:mm', 'H:mm']</td>
-			<td>[firstPart, secondPart]<td>
+			<td>[firstPart, secondPart]</td>
 			<td>any moment.js format</td>
 		</tr>
 		<tr>
