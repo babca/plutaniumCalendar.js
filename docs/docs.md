@@ -15,16 +15,63 @@ Currently only an API is open sourced. If you are interested let me know!
 ##Features
 
 ###frontend features
- * seamless autorefresh
+ * can be integrated with you app or website
+ * seamless autorefresh on background
  * single moment, allday and multiday events support
- * 3
+ * show business hours on top of event feed
+ * uses CSS flex model
 
 
 ###developer features
  * written in jQuery
- * compatible with AngularJS
+ * compatible with AngularJS and moment.js
  * fully customizable eventList content and behavior
- * you can connect it to your app, or indirectly to any external service like Google Calendar
+ * you can connect it to your app, or indirectly to any external service like Google Calendar, custom Wordpress plugin etc.
+ * show standard business hours on top of the event list
+
+##Use cases
+
+###Restaurant, Hotel, Club organizing events for people
+ * 
+
+###Order system
+
+###Blog
+* show your blog posts in a calendar widget
+* show your blog posts together with your public google calendar and facebook and twitter
+
+##Get started
+```js
+ecMainInstance = jQuery('#eventCalendarWidget').eventCalendar(options)
+```
+
+##Object format
+
+###event object
+```js
+ecMainInstance.getEvent(28)
+```
+
+```js
+Object
+	{
+	startDate: "2016-04-24T13:45:00+0000",
+	endDate: "2016-04-24T20:00:00+0000",
+	id: 28,
+	type: "available"
+	}
+```
+
+###eventsStorage object
+Array of `event` objects.
+```js
+ecMainInstance.getEventsStorage()
+```
+
+```js
+[ Object, Object, Object, Object, Object, ... ]
+```
+
 
 ##Public methods
 
@@ -71,11 +118,13 @@ ecMainInstance.selectEvent(id)
 ecMainInstance.getEvent()
 ```
 
-###getEvent
+###getSelectedEvent
 
 ```js
 ecMainInstance.getSelectedEvent()
 ```
+
+returns an `event` object
 
 ###getSelectedEvent
 
@@ -183,60 +232,33 @@ jQuery('#eventCalendarLimit').on('blockedUserClick', function(event)
 [{startDate: "2016-04-25T11:15:00+0000", endDate: "2016-04-25T12:15:00+0000", id: 25, type: "available"},{startDate: "2016-04-25T15:15:00+0000", endDate: "2016-04-25T17:45:00+0000", id: 26, type: "full"}]
 ```
 
-##Object format
-
-###event object
-```js
-ecMainInstance.getEvent(28)
-```
-
-```js
-Object
-	{
-	startDate: "2016-04-24T13:45:00+0000",
-	endDate: "2016-04-24T20:00:00+0000",
-	id: 28,
-	type: "available"
-	}
-```
-
-###eventsStorage object
-Array of `event` objects.
-```js
-ecMainInstance.getEventsStorage()
-```
-
-```js
-[ Object, Object, Object, Object, Object, ... ]
-```
-
 ### Translate
 
 ```js
-pecCzechLanguageSet =
+pecLolaleCzech =
 	{
 	subtitleSelectedDay: '{0}',
-	nextMonth:         'další měsíc',
-	prevMonth:         'předchozí měsíc',
-	nextEvents:        'nejbližší volné termíny:',
-	viewMore:          'podrobnosti »',
-	networkError:      'Chyba při načítání dat.',
-	jsonFormatError:   'Chyba při načítání dat.',
-	today:             'dnes',
-	tomorrow:          'zítra',
-	dayAfterTomorrow:  'pozítří',
-	yesterday:         'včera',
-	closed:            '',
-	noEventsThisDay:   'termíny pro tento den nevypsány',
-	noEventsThisMonth: 'termíny pro tento měsíc nevypsány',
-	noUpcomingEvents:  'žádné volné termíny nebyly vypsány',
-	withEvents:        '',
-	lastItemText:      '', //V ostatní dny se na Vás těšíme ve standardní otevírací dobu.',
-	businessHoursText: '', //Těšíme se na vás v {0} hod!
-	monthNames:    [ 'leden', 'únor', 'březen', 'duben', 'květen', 'červen', 'červenec', 'srpen', 'září', 'říjen', 'listopad', 'prosinec' ],
-	dayNames:      [ 'pondělí', 'úterý', 'středa', 'čtvrtek', 'pátek', 'sobota', 'neděle'],
-	nextDayNames:  [ 'toto pondělí', 'toto úterý', 'tuto středu', 'tento čtvrtek', 'tento pátek', 'tuto sobotu', 'tuto neděli'],
-	dayNamesShort: [ 'Ne', 'Po', 'Út', 'St', 'Čt', 'Pá', 'So' ],
+	nextMonth:           'další měsíc',
+	prevMonth:           'předchozí měsíc',
+	nextEvents:          'nejbližší volné termíny:',
+	viewMore:            'podrobnosti »',
+	networkError:        'Chyba při načítání dat.',
+	jsonFormatError:     'Chyba při načítání dat.',
+	today:               'dnes',
+	tomorrow:            'zítra',
+	dayAfterTomorrow:    'pozítří',
+	yesterday:           'včera',
+	closed:              '',
+	noEventsThisDay:     'termíny pro tento den nevypsány',
+	noEventsThisMonth:   'termíny pro tento měsíc nevypsány',
+	noUpcomingEvents:    'žádné volné termíny nebyly vypsány',
+	withEvents:          '',
+	lastItemText:        '', //V ostatní dny se na Vás těšíme ve standardní otevírací dobu.',
+	businessHoursText:   '', //Těšíme se na vás v {0} hod!
+	monthNames:          [ 'leden', 'únor', 'březen', 'duben', 'květen', 'červen', 'červenec', 'srpen', 'září', 'říjen', 'listopad', 'prosinec' ],
+	dayNames:            [ 'pondělí', 'úterý', 'středa', 'čtvrtek', 'pátek', 'sobota', 'neděle'],
+	nextDayNames:        [ 'toto pondělí', 'toto úterý', 'tuto středu', 'tento čtvrtek', 'tento pátek', 'tuto sobotu', 'tuto neděli'],
+	dayNamesShort:       [ 'Ne', 'Po', 'Út', 'St', 'Čt', 'Pá', 'So' ]
 	}
 ```
 
@@ -245,7 +267,7 @@ pecCzechLanguageSet =
 Here are all the options and their defaults
 
 ```js
-pecMainInstance = jQuery('#eventCalendarLimit').eventCalendar(
+options =
 	{
     jsonData:              null,   // JSON string or feed URL
 	pollingInterval:       0,      // autorefresh JSON feed [number of seconds]
