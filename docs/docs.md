@@ -394,11 +394,6 @@ jQuery('#eventCalendarLimit').on('blockedUserClick', function(event)
 	</thead>
 	<tbody>
 		<tr>
-			<td>jsonData</td>
-			<td>string</td>
-			<td>JSON string or feed URL</td>
-		</tr>
-		<tr>
 			<td>pollingInterval</td>
 			<td>0</td>
 			<td>0-99999</td>
@@ -419,26 +414,26 @@ jQuery('#eventCalendarLimit').on('blockedUserClick', function(event)
 		<tr>
 			<td>timeFormat</td>
 			<td>'H:mm'</td>
-			<td>any moment.js format<td>
+			<td>any moment.js format</td>
 			<td></td>
 		</tr>
 		<tr>
 			<td>dateFormat</td>
 			<td>'D. MMMM'</td>
-			<td>any moment.js format<td>
-			<td><td>
+			<td>any moment.js format</td>
+			<td></td>
 		</tr>
 		<tr>
 			<td>dateRangeIntradayFormat</td>
 			<td>['D. MMMM H:mm', 'H:mm']</td>
 			<td>[firstPart, secondPart]<td>
-			<td>any moment.js format<td>
+			<td>any moment.js format</td>
 		</tr>
 		<tr>
 			<td>dateRangeMultidayFormat</td>
 			<td>['D.', 'D. MMMM']</td>
 			<td>[firstPart, secondPart]</td>
-			<td>any moment.js format<td>
+			<td>any moment.js format</td>
 		</tr>
 		<tr>
 			<td>injectMethod</td>
