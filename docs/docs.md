@@ -1,6 +1,7 @@
 # plutanium-event-calendar
-Plutanium Event Calendar is an event calendar for restaurants, sidebars, calendar widgets, order forms with appointment picker, event list. Written in jquery, usable with angular. Data are served in JSON.
-Currently only an API is open sourced. If you are interested let me know!
+Plutanium Event Calendar is the most comprehensive event calendar for restaurants, sidebars, calendar widgets, order forms with appointment or timeslot picker, event list. Written in jQuery, usable with AngularJS.
+
+Only API is open sourced at the moment. If you are interested in the library let me know!
 
 ##Features
 
@@ -16,10 +17,11 @@ Currently only an API is open sourced. If you are interested let me know!
 
 
 ###developer features
- * written in jQuery
+ * written in jQuery, stable, used in production
  * compatible with AngularJS and moment.js
  * fully customizable eventList content and behavior
- * you can connect it to your app, or indirectly to any external service like Google Calendar, custom Wordpress plugin etc.
+ * generate JSON dynamically on client side or server side 
+ * you can connect it to your backend app, custom Wordpress pluginm, or indirectly to any external service like Google Calendar etc.
  * show standard business hours on top of the event list
  * multiple calendar instances with different settings on a same webpage possible
 
@@ -30,7 +32,7 @@ Currently only an API is open sourced. If you are interested let me know!
  * show WE'RE CLOSED message on top of event feed on days you are out of business.
  * set your standard week business days in the settings, provide additional "We're closed today" events in JSON feed to close anytime.
 
-###Order system
+###Online ordering system timeslot picker
  * show available/full appointments, nonworking days
  * use it as a date picker for your order form
  * lock calendar and highlight the ordered appointment
@@ -39,17 +41,24 @@ Currently only an API is open sourced. If you are interested let me know!
  * show your blog posts in a calendar widget
  * show your blog posts in a calendar widget, together with your public google calendar feed and facebook feed
 
+###Universal date od datetime slot picker
+ * generate json dynamically on client side
+
+
 ##Getting started
 
 ###Browser
 
 ```html
+<link rel="stylesheet" href="css/eventCalendar.css" type="text/css" media="all">
+<link rel="stylesheet" href="css/eventCalendarTheme.css" type="text/css" media="all">
+
 <script src="moment.min.js"></script>
 <script src="twix.min.js"></script>
 <script src="plutanium-event-calendar.js"></script>
 ```
 
-##Your javascript file
+###Your javascript file
 
 ```js
 ecMainInstance = jQuery('#eventCalendarWidget').eventCalendar(options)
@@ -102,6 +111,7 @@ Object
 	id: 28,
 	type: "available",
 	description: "Apple 40th Anniversary party"
+	url: "http://mysite.com/events/url-to-event/"
 	}
 ```
 
@@ -154,24 +164,33 @@ pecMainInstance.repaint()
 ```
 
 ###switchView
-
+Jump to month or day.
 ```js
-pecMainInstance.switchView(datetime, switchTo, forceRefresh)
+pecMainInstance.switchView(jumpType, datetime, forceRefresh = false)
 ```
 
+`jumpType` of `month` only jumps to provided month; `jumpType` of `day` is more specific, it jumps to the provided month and selects the day in the month view too. 
 `datetime` must be a moment() object.
+`forceRefresh` if true, it redownloads JSON data. Default false.
+
+```js
+pecMainInstance.switchView(moment("2016-07-22T13:45:00+0000"), "month") // jumps to July 2016
+pecMainInstance.switchView(moment("2016-07-22T13:45:00+0000"), "day")   // jumps to July 2016 and selects 2016-07-22
+```
 
 ###disableEventSelection
-
+Locks event list. User can't select the event by mouse click.
 ```js
 pecMainInstance.disableEventSelection()
 ```
 
 ###enableEventSelection
-
+Enables user selection in event list. User can select the event by mouse click.
 ```js
 pecMainInstance.enableEventSelection()
 ```
+
+You probably want to handle user clicks too, see `clickedOnEventInEventListCallback()`.
 
 ###selectEvent
 Select event by its ID. It is similar to user clicks on item in eventlist.
@@ -368,7 +387,6 @@ jQuery('#eventCalendarLimit').on('blockedUserClick', function(event)
 	<thead>
 		<tr>
 			<th>Option name</th>
-			<th>Type</th>
 			<th>Default value</th>
 			<th>Values</th>
 			<th>Description</th>
@@ -382,228 +400,198 @@ jQuery('#eventCalendarLimit').on('blockedUserClick', function(event)
 		</tr>
 		<tr>
 			<td>pollingInterval</td>
-			<td>int</td>
-			<td>autorefresh JSON feed [number of seconds], `0` for never</td>
+			<td>0</td>
+			<td>0-99999</td>
+			<td>number of seconds; autorefresh JSON feed every `pollingInterval` seconds, `0` for never</td>
 		</tr>
 		<tr>
 			<td>cacheJson</td>
-			<td>bool</td>
+			<td>true</td>
+			<td>true | false</td>
 			<td>if TRUE plugin get a json only first time and after plugin filter events  |  if FALSE plugin get a new json on each date change</td>
 		</tr>
 		<tr>
 			<td>businessHours</td>
 			<td>[false,false,false,false,false,false,false],</td>
+			<td></td>
 			<td>like '11:00-21:00,11:00-22:00,11:00-22:00,11:00-22:00,11:00-22:00,11:00-23:00,11:00-23:00' // sunday,monday,tuesday...,saturday</td>
 		</tr>
 		<tr>
 			<td>timeFormat</td>
 			<td>'H:mm'</td>
+			<td>any moment.js format<td>
 			<td></td>
 		</tr>
 		<tr>
 			<td>dateFormat</td>
-			<td></td>
 			<td>'D. MMMM'</td>
+			<td>any moment.js format<td>
+			<td><td>
 		</tr>
 		<tr>
 			<td>dateRangeIntradayFormat</td>
-			<td></td>
 			<td>['D. MMMM H:mm', 'H:mm']</td>
-			<td></td>
-			<td></td>
+			<td>[firstPart, secondPart]<td>
+			<td>any moment.js format<td>
 		</tr>
 		<tr>
 			<td>dateRangeMultidayFormat</td>
-			<td></td>
 			<td>['D.', 'D. MMMM']</td>
-			<td></td>
-			<td></td>
+			<td>[firstPart, secondPart]</td>
+			<td>any moment.js format<td>
 		</tr>
 		<tr>
 			<td>injectMethod</td>
-			<td></td>
 			<td>'prepend'</td>
-			<td></td>
-			<td>Not important if you are injecting calendar in an empty div, but useful when you are injecting in an existing non-blank div. Example: jQuery(".myCalendars").###eventCalendar(myOptions) = init calendar on .myCalendar and... APPEND or PREPEND the calendar layout template to it? You decide.</td>
+			<td>prepend | append</td>
+			<td>Not important if you are injecting calendar in an empty div, but useful when you are injecting in an existing non-blank div. Example: `jQuery(".myCalendars").eventCalendar(myOptions)` = init calendar on .myCalendar and... APPEND or PREPEND the calendar layout template to it? You decide.</td>
 		</tr>
 		<tr>
 			<td>injectTo</td>
 			<td></td>
 			<td>'right_column_div'</td>
-			<td></td>
-			<td>false = append to the main element which is calendar inited on   |   "string" = find a subtag for appending/prepending whole layout to. Example: ".###column-2" = appends or prepends to column-2 class subelement</td>
+			<td>false = append to the main element which is calendar inited on<br>"string" = find a subtag for appending/prepending whole layout to. Example: ".column-2" = appends or prepends to column-2 class subelement</td>
 		</tr>
 		<tr>
 			<td>startWeekOnMonday</td>
-			<td></td>
 			<td>true</td>
-			<td></td>
+			<td>true | false</td>
 			<td></td>
 		</tr>
 		<tr>
 			<td>showDayNameInCalendar</td>
-			<td></td>
 			<td>true</td>
-			<td></td>
+			<td>true | false</td>
 			<td></td>
 		</tr>
 		<tr>
 			<td>onLoadDatetime</td>
-			<td></td>
 			<td>moment()</td>
-			<td></td>
-			<td></td>
+			<td>any moment.js time</td>
+			<td>It is always better to provide reference server time. If not provided, local machine time is used, but beware, local time can be off and wrong timezone can be set.</td>
 		</tr>
 		<tr>
 			<td>onLoadEventListView</td>
-			<td></td>
-			<td>"upcoming"</td>
-			<td></td>
+			<td>upcoming</td>
+			<td>upcoming | month | day</td>
 			<td></td>
 		</tr>
 		<tr>
 			<td>upcomingTimeLimit</td>
-			<td></td>
 			<td>[1, "month"]</td>
 			<td>[1, "month"], [4, "weeks"], [1, "year"]</td>
 			<td></td>
 		</tr>
 		<tr>
 			<td>upcomingFilterEventTypeTo</td>
-			<td></td>
 			<td>false</td>
-			<td></td>
-			<td></td>
+			<td>true | false</td>
+			<td>Example: se to `available` to show only available slots in upcoming events list. Note: you have to provide the `type` property (`available | full`) in JSON from backend.</td>
 		</tr>
 		<tr>
 			<td>upcomingCountLimit</td>
-			<td>int</td>
 			<td>10</td>
 			<td></td>
-			<td></td>
+			<td>limit number of events in eventsList upcoming view</td>
 		</tr>
 		<tr>
 			<td>eventsCountlimit</td>
-			<td></td>
 			<td>0</td>
 			<td></td>
-			<td></td>
+			<td>limit number of events in eventsList day/month view</td>
 		</tr>
 		<tr>
 			<td>allowUpcomingView</td>
-			<td></td>
 			<td>true</td>
-			<td></td>
+			<td>true | false</td>
 			<td></td>
 		</tr>
 		<tr>
 			<td>allowMonthSummaryView</td>
-			<td></td>
 			<td>true</td>
-			<td></td>
+			<td>true | false</td>
 			<td></td>
 		</tr>
 		<tr>
 			<td>showDate</td>
-			<td></td>
 			<td>true</td>
-			<td></td>
+			<td>true | false</td>
 			<td></td>
 		</tr>
 		<tr>
 			<td>showTime</td>
-			<td></td>
 			<td>true</td>
-			<td></td>
+			<td>true | false</td>
 			<td></td>
 		</tr>
 		<tr>
 			<td>showRange</td>
-			<td></td>
 			<td>"multidayEventsOnly"</td>
 			<td>never | whenPossible | multidayEventsOnly</td>
-			<td>never | whenPossible | multidayEventsOnly, "whenPossible" = shows event datetime as datetime range for all events >=1 second long. Don't forget to ###send endTime value in JSON. "never" = shows only event start datetimes. "multidayEventsOnly" - show range for multiday events only; show only the start time for intraday events. (DEFAULT)</td>
+			<td>"whenPossible" = shows event datetime as datetime range for all events >=1 second long. Don't forget to ###send endTime value in JSON.<br>"never" = shows only event start datetimes.<br>"multidayEventsOnly" - show range for multiday events only; show only the start time for intraday events. (DEFAULT)</td>
 		</tr>
 		<tr>
 			<td>showDescription</td>
 			<td>false</td>
-			<td></td>
-			<td></td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>onlyOneDescription</td>
-			<td>true</td>
-			<td></td>
-			<td></td>
+			<td>true | false</td>
 			<td></td>
 		</tr>
 		<tr>
 			<td>openEventInNewWindow</td>
 			<td>false</td>
-			<td></td>
-			<td></td>
+			<td>true | false</td>
 			<td></td>
 		</tr>
 		<tr>
 			<td>limitView</td>
-			<td></td>
 			<td>false</td>
-			<td></td>
+			<td>true | false</td>
 			<td>true = user can only navigate in specific range of months</td>
 		</tr>
 		<tr>
 			<td>limitViewAutoMode</td>
-			<td></td>
 			<td>true</td>
-			<td></td>
+			<td>true | false</td>
 			<td>automatic limit: first event..last event</td>
 		</tr>
 		<tr>
 			<td>limitViewStartdate</td>
-			<td>moment object</td>
 			<td>false</td>
-			<td></td>
+			<td>moment object | false</td>
 			<td></td>
 		</tr>
 		<tr>
 			<td>limitViewEnddate</td>
-			<td>moment object</td>
 			<td>false</td>
-			<td></td>
+			<td>moment object | false</td>
 			<td></td>
 		</tr>
 		<tr>
 			<td>animationSlider</td>
-			<td></td>
 			<td>300</td>
 			<td></td>
 			<td>milliseconds</td>
 		</tr>
 		<tr>
 			<td>animationList</td>
-			<td></td>
 			<td>300</td>
 			<td></td>
 			<td>milliseconds</td>
 		</tr>
 		<tr>
 			<td>moveOpacity</td>
-			<td></td>
 			<td>0.1</td>
 			<td></td>
 			<td>month and events fadeOut to this opacity</td>
 		</tr>
 		<tr>
 			<td>allowEventSelection</td>
-			<td></td>
 			<td>false</td>
-			<td></td>
+			<td>true | false</td>
 			<td>false for passive event listing, true for interactive apps</td>
 		</tr>
 		<tr>
 			<td>lang</td>
-			<td></td>
 			<td>object</td>
 			<td></td>
 			<td>see lang format below</td>
