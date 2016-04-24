@@ -12,6 +12,7 @@ Currently only an API is open sourced. If you are interested let me know!
  * can be used for reservations – available/full/nonworking day colors
  * set the boundaries user can navigate in ()
  * easily translate to your language
+ * it properly handles timezones and daylight saving time (summer time)
 
 
 ###developer features
@@ -59,17 +60,76 @@ ecMainInstance = jQuery('#eventCalendarWidget').eventCalendar(options)
 ##Object format
 
 ###event object
-one event
+Object containting a single event
 
+<table class="table table-bordered table-striped bs-events-table">
+	<thead>
+		<tr>
+			<th>JSON field</th>
+			<th>Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>startDate</td>
+			<td>start datetime in ISO 8601 format.</td>
+		</tr>
+		<tr>
+			<td>endDate</td>
+			<td>same as startDate if event has no duration</td>
+		</tr>
+		<tr>
+			<td>id</td>
+			<td>Every event has to contain an `id` property and it must be unique in JSON feed.</td>
+		</tr>
+		<tr>
+			<td>type</td>
+			<td>You can use `type` to identify and separate events to groups, or to identify appointment slot current status.</td>
+		</tr>
+		<tr>
+			<td>description</td>
+			<td>Any string describing the event.</td>
+		</tr>
+	</tbody>
+</table>
+
+For restaurant/hotel/club organizing events, you can use this format:
+```js
+Object
+	{
+	startDate: "2016-04-01T18:30:00+0000",
+	endDate: "2016-04-01T23:00:00+0000",
+	id: 28,
+	type: "available",
+	description: "Apple 40th Anniversary party"
+	}
+```
+
+```js
+Object
+	{
+	startDate: "2016-12-31T00:00:00+0000", // currently, 00:00:00 startDate means all-day event, considering to make it more clear
+	endDate: "2016-12-31T00:00:00+0000",
+	id: 29,
+	type: "closed",
+	description: "Private party" // Reason for being of of business this day.
+	}
+```
+
+For appointment reservation slots/order systems, you can use this format:
 ```js
 Object
 	{
 	startDate: "2016-04-24T13:45:00+0000",
 	endDate: "2016-04-24T20:00:00+0000",
-	id: 28,
+	id: 36,
 	type: "available"
 	}
 ```
+
+where `type = available | full`
+
+**Every event has to contain an `id` property and it must be unique in JSON feed.**
 
 ###eventsStorage object
 Array of `event` objects.
@@ -77,6 +137,7 @@ Array of `event` objects.
 [ Object, Object, Object, Object, Object, ... ]
 ```
 
+**Every event has to contain an `id` property and it must be unique in JSON feed.**
 
 ##Public methods
 
@@ -98,6 +159,8 @@ pecMainInstance.repaint()
 pecMainInstance.switchView(datetime, switchTo, forceRefresh)
 ```
 
+`datetime` must be a moment() object.
+
 ###disableEventSelection
 
 ```js
@@ -111,7 +174,7 @@ pecMainInstance.enableEventSelection()
 ```
 
 ###selectEvent
-Select event by its ID. It is similar to user click on item in eventlist.
+Select event by its ID. It is similar to user clicks on item in eventlist.
 
 ```js
 pecMainInstance.selectEvent(id)
@@ -163,11 +226,12 @@ ecMainInstance.removeEventSelection()
 
 ###highlightEvent
 oznaci termin jako jako objednany, uzivatel muze klikat jinam ale zvyrazneni zustava. Obvykle potom jeste zamces kalendar proti dalsimu klikani pres disableEventSelection().
-datetime must be a moment() object
 
 ```js
 pecMainInstance.highlightEvent(datetime, repaintViewNow, repaintEventListNow)
 ```
+
+`datetime` must be a moment() object.
 
 ##Callbacks
 
@@ -185,7 +249,7 @@ smartEventDescription: function (event, eventIsHighlighted)
 	if (event.type == "available")
 		return "Available";
 	
-	return event.description; // description from json feed
+	return event.description; // otherwise use description from json feed
 	}
 ```
 
@@ -196,7 +260,7 @@ pecMainInstance.switchedViewCallback()
 ```
 
 ###clickedOnEventInEventListCallback
-This fires whenever a user clicked in eventList when calendar is unlocked. You can use this for your GUI - for example, unlock button triple-blink, change date button triple-blink etc.
+This fires whenever a user click in eventList when calendar is unlocked. You can use this for your GUI - for example, unlock button triple-blink, change date button triple-blink etc.
 
 when you develop you can call it manually by
 
@@ -223,12 +287,12 @@ pecMainInstance.smartEventDescription()
 
 ##Handle events
 <table class="table table-bordered table-striped bs-events-table">
-<thead>
-	<tr>
-		<th>Event Type</th>
-		<th>Description</th>
-	</tr>
-		</thead>
+	<thead>
+		<tr>
+			<th>Event Type</th>
+			<th>Description</th>
+		</tr>
+	</thead>
 	<tbody>
 		<tr>
 			<td>newDataLoaded</td>
@@ -285,7 +349,7 @@ jQuery('#eventCalendarLimit').on('eventListGenerated', function(event)
 Protip: use `on()` for firing every time, `one()` for firing only for the first-time.
 
 ###blockedUserClick
-This event fires whenever a user clicked on eventList when calendar is locked. You can use this for your GUI - for example, unlock button triple-blink, change date button triple-blink etc.
+This event fires whenever a user clicks on eventList when calendar is locked. You can use this for your GUI - for example, unlock button triple-blink, change date button triple-blink etc.
 
 ```js
 jQuery('#eventCalendarLimit').on('blockedUserClick', function(event)
@@ -299,7 +363,256 @@ jQuery('#eventCalendarLimit').on('blockedUserClick', function(event)
 [{startDate: "2016-04-25T11:15:00+0000", endDate: "2016-04-25T12:15:00+0000", id: 25, type: "available"},{startDate: "2016-04-25T15:15:00+0000", endDate: "2016-04-25T17:45:00+0000", id: 26, type: "full"}]
 ```
 
-### Translate
+## Options
+<table class="table table-bordered table-striped bs-events-table">
+	<thead>
+		<tr>
+			<th>Option name</th>
+			<th>Type</th>
+			<th>Default value</th>
+			<th>Values</th>
+			<th>Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>jsonData</td>
+			<td>string</td>
+			<td>JSON string or feed URL</td>
+		</tr>
+		<tr>
+			<td>pollingInterval</td>
+			<td>int</td>
+			<td>autorefresh JSON feed [number of seconds], `0` for never</td>
+		</tr>
+		<tr>
+			<td>cacheJson</td>
+			<td>bool</td>
+			<td>if TRUE plugin get a json only first time and after plugin filter events  |  if FALSE plugin get a new json on each date change</td>
+		</tr>
+		<tr>
+			<td>businessHours</td>
+			<td>[false,false,false,false,false,false,false],</td>
+			<td>like '11:00-21:00,11:00-22:00,11:00-22:00,11:00-22:00,11:00-22:00,11:00-23:00,11:00-23:00' // sunday,monday,tuesday...,saturday</td>
+		</tr>
+		<tr>
+			<td>timeFormat</td>
+			<td>'H:mm'</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>dateFormat</td>
+			<td></td>
+			<td>'D. MMMM'</td>
+		</tr>
+		<tr>
+			<td>dateRangeIntradayFormat</td>
+			<td></td>
+			<td>['D. MMMM H:mm', 'H:mm']</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>dateRangeMultidayFormat</td>
+			<td></td>
+			<td>['D.', 'D. MMMM']</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>injectMethod</td>
+			<td></td>
+			<td>'prepend'</td>
+			<td></td>
+			<td>Not important if you are injecting calendar in an empty div, but useful when you are injecting in an existing non-blank div. Example: jQuery(".myCalendars").###eventCalendar(myOptions) = init calendar on .myCalendar and... APPEND or PREPEND the calendar layout template to it? You decide.</td>
+		</tr>
+		<tr>
+			<td>injectTo</td>
+			<td></td>
+			<td>'right_column_div'</td>
+			<td></td>
+			<td>false = append to the main element which is calendar inited on   |   "string" = find a subtag for appending/prepending whole layout to. Example: ".###column-2" = appends or prepends to column-2 class subelement</td>
+		</tr>
+		<tr>
+			<td>startWeekOnMonday</td>
+			<td></td>
+			<td>true</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>showDayNameInCalendar</td>
+			<td></td>
+			<td>true</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>onLoadDatetime</td>
+			<td></td>
+			<td>moment()</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>onLoadEventListView</td>
+			<td></td>
+			<td>"upcoming"</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>upcomingTimeLimit</td>
+			<td></td>
+			<td>[1, "month"]</td>
+			<td>[1, "month"], [4, "weeks"], [1, "year"]</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>upcomingFilterEventTypeTo</td>
+			<td></td>
+			<td>false</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>upcomingCountLimit</td>
+			<td>int</td>
+			<td>10</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>eventsCountlimit</td>
+			<td></td>
+			<td>0</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>allowUpcomingView</td>
+			<td></td>
+			<td>true</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>allowMonthSummaryView</td>
+			<td></td>
+			<td>true</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>showDate</td>
+			<td></td>
+			<td>true</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>showTime</td>
+			<td></td>
+			<td>true</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>showRange</td>
+			<td></td>
+			<td>"multidayEventsOnly"</td>
+			<td>never | whenPossible | multidayEventsOnly</td>
+			<td>never | whenPossible | multidayEventsOnly, "whenPossible" = shows event datetime as datetime range for all events >=1 second long. Don't forget to ###send endTime value in JSON. "never" = shows only event start datetimes. "multidayEventsOnly" - show range for multiday events only; show only the start time for intraday events. (DEFAULT)</td>
+		</tr>
+		<tr>
+			<td>showDescription</td>
+			<td>false</td>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>onlyOneDescription</td>
+			<td>true</td>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>openEventInNewWindow</td>
+			<td>false</td>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>limitView</td>
+			<td></td>
+			<td>false</td>
+			<td></td>
+			<td>true = user can only navigate in specific range of months</td>
+		</tr>
+		<tr>
+			<td>limitViewAutoMode</td>
+			<td></td>
+			<td>true</td>
+			<td></td>
+			<td>automatic limit: first event..last event</td>
+		</tr>
+		<tr>
+			<td>limitViewStartdate</td>
+			<td>moment object</td>
+			<td>false</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>limitViewEnddate</td>
+			<td>moment object</td>
+			<td>false</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>animationSlider</td>
+			<td></td>
+			<td>300</td>
+			<td></td>
+			<td>milliseconds</td>
+		</tr>
+		<tr>
+			<td>animationList</td>
+			<td></td>
+			<td>300</td>
+			<td></td>
+			<td>milliseconds</td>
+		</tr>
+		<tr>
+			<td>moveOpacity</td>
+			<td></td>
+			<td>0.1</td>
+			<td></td>
+			<td>month and events fadeOut to this opacity</td>
+		</tr>
+		<tr>
+			<td>allowEventSelection</td>
+			<td></td>
+			<td>false</td>
+			<td></td>
+			<td>false for passive event listing, true for interactive apps</td>
+		</tr>
+		<tr>
+			<td>lang</td>
+			<td></td>
+			<td>object</td>
+			<td></td>
+			<td>see lang format below</td>
+		</tr>
+	</tbody>
+</table>	
+
+### lang
+Easily translate to your language.
 
 ```js
 pecLolaleCzech =
@@ -327,6 +640,8 @@ pecLolaleCzech =
 	nextDayNames:        [ 'toto pondělí', 'toto úterý', 'tuto středu', 'tento čtvrtek', 'tento pátek', 'tuto sobotu', 'tuto neděli'],
 	dayNamesShort:       [ 'Ne', 'Po', 'Út', 'St', 'Čt', 'Pá', 'So' ]
 	}
+
+jQuery.fn.eventCalendar.defaults.lang = pecLolaleCzech
 ```
 
 ### All the options
@@ -372,23 +687,45 @@ options =
 	allowEventSelection:   false,
 	lang:
 		{
+		subtitleSelectedDay: '{0}',
+		nextMonth:           'next month',
+		prevMonth:           'previous month',
+		nextEvents:          'next events:',
+		viewMore:            'more »',
+		networkError:        'Network error.',
+		jsonFormatError:     'Data error.',
+		today:               'today',
+		tomorrow:            'tomorrow',
+		dayAfterTomorrow:    'day after tomorrow',
+		yesterday:           'yesterday',
+		closed:              '',
+		noEventsThisDay:     'no events to show for this day',
+		noEventsThisMonth:   'no events to show for this month',
+		noUpcomingEvents:    'no upcoming events',
+		withEvents:          '',
+		lastItemText:        '', //V ostatní dny se na Vás těšíme ve standardní otevírací dobu.',
+		businessHoursText:   'We are ', //Těšíme se na vás v {0} hod!
 		monthNames:            [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ],
 		dayNames:              [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ],
 		nextDayNames:          [ 'next Sunday', 'next Monday', 'next Tuesday','next Wednesday', 'next Thursday', 'next Friday', 'next Saturday' ],
 		dayNamesShort:         [ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ],
-		businessHoursText:     ""
 		},
 
-	switchedViewCallback:              function() { },
-	clickedOnEventInEventListCallback: function() { },
-	refreshCallback:                   function() { },
-	smartEventDescription:             function(event)
-		{
-		return event.description;
-		},
-
+	switchedViewCallback:              function(whatChanged, datetime) { },
+	clickedOnEventInEventListCallback: function(event) { },
+	smartEventDescription:             function(event, eventIsHighlighted) { return event.description; },
 	};
 ```
 
+##Override default options
+Overriding default options for every new instance is easy, example:
+```js
+jQuery.fn.eventCalendar.defaults.cacheJson = false
+```
+
 ##Source code
-plutanium-event-calendar.js is a fully functional stable closed-source library. We are currently considering to open sourcing it. If you are interested let me know.
+plutanium-event-calendar.js is a fully functional stable closed-source jquery library.
+
+Do you want the calendar for you website? Let me know! I can also implement any custom functionality for you.
+
+(c) 2016 babca
