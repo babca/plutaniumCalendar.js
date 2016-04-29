@@ -18,17 +18,18 @@ Only API is open sourced at the moment. If you are interested in the library let
 
 ###developer features
  * written in jQuery, stable, used in production
- * compatible with AngularJS and moment.js
+ * compatible with Bootstrap, AngularJS and moment.js
  * fully customizable eventList content and behavior
+ * fully customizable layout with html template, responsive css themes
  * generate JSON dynamically on client side or server side 
- * you can connect it to your backend app, custom Wordpress pluginm, or indirectly to any external service like Google Calendar etc.
- * show standard business hours on top of the event list
+ * you can connect it to your backend app, custom Wordpress plugin or indirectly to any external service like Google Calendar etc.
  * multiple calendar instances with different settings on a same webpage possible
+ * locale support
 
 ##Use cases
 
 ###Restaurant, Hotel, Club organizing events for people
- * show business hours for every day in event feed header
+ * show your regular business hours for every day in event feed header
  * show WE'RE CLOSED message on top of event feed on days you are out of business.
  * set your standard week business days in the settings, provide additional "We're closed today" events in JSON feed to close anytime.
 
@@ -385,6 +386,36 @@ jQuery('#eventCalendarLimit').on('blockedUserClick', function(event)
 [{startDate: "2016-04-25T11:15:00+0000", endDate: "2016-04-25T12:15:00+0000", id: 25, type: "available"},{startDate: "2016-04-25T15:15:00+0000", endDate: "2016-04-25T17:45:00+0000", id: 26, type: "full"}]
 ```
 
+##HTML template
+You can currently use `{0}` for calendar slider, and `{1}` for events list.
+
+By default it just concatenates these two widgets,
+```js
+{0}{1}
+```
+
+but you can wrap these any way you need to
+```js
+var myCalendarLayout = 
+"	<!-- eventCalendar.js html snippet -->"
++"	<!-- COLUMN 1 -->"
++"	<div class='col-xs-12 col-lg-6'>"
++"		<h2>Calendar</h2>"
++" 		{0}"
++"	</div>"
+
++"	<!-- COLUMN 2 -->"
++"	<div class='col-xs-12 col-lg-6'>"
++"		<h2>Events list</h2>"
++"		{1}"
++"	</div>";
+
+jQuery.fn.eventCalendar.defaults.htmlTemplate = myCalendarLayout
+```
+
+
+
+
 ## Options
 <table class="table table-bordered table-striped bs-events-table">
 	<thead>
@@ -396,6 +427,18 @@ jQuery('#eventCalendarLimit').on('blockedUserClick', function(event)
 		</tr>
 	</thead>
 	<tbody>
+		<tr>
+			<td>jsonData</td>
+			<td>null</td>
+			<td>JSON string</td>
+			<td>see JSON format for eventStorage</td>
+		</tr>
+		<tr>
+			<td>htmlTemplate</td>
+			<td>null</td>
+			<td>{0}{1}</td>
+			<td>see HTML template</td>
+		</tr>
 		<tr>
 			<td>pollingInterval</td>
 			<td>0</td>
@@ -638,6 +681,7 @@ Here are all the options and their defaults
 options =
 	{
     jsonData:              null,   // JSON string or feed URL
+	htmlTemplate:          null,   // null for default layout, html code with for custom layout
 	pollingInterval:       0,      // autorefresh JSON feed [number of seconds]
 	cacheJson:             true,   // if TRUE plugin get a json only first time and after plugin filter events  |  if FALSE plugin get a new json on each date change
 	businessHours:         [false,false,false,false,false,false,false], // like '11:00-21:00,11:00-22:00,11:00-22:00,11:00-22:00,11:00-22:00,11:00-23:00,11:00-23:00' // sunday,monday,tuesday...,saturday
