@@ -483,15 +483,15 @@ jQuery.fn.eventCalendar.defaults.htmlTemplate = myCalendarLayout
 		</tr>
 		<tr>
 			<td>injectMethod</td>
-			<td>'prepend'</td>
-			<td>prepend | append</td>
-			<td>Not important if you are injecting calendar in an empty div, but useful when you are injecting in an existing non-blank div. Example: `jQuery(".myCalendars").eventCalendar(myOptions)` = init calendar on .myCalendar and... APPEND or PREPEND the calendar layout template to it? You decide.</td>
+			<td>'replaceWith'</td>
+			<td>replaceWith | append | prepend | before | after</td>
+			<td>The plugin replaces content of the target div by default. You can change the behavior with this setting. It can be useful when you are injecting the calendar into an existing non-blank div.<br>Example: injectMethod='append'`, `injectTo='.subdiv'`, `jQuery(".myCalendars").eventCalendar(myOptions)` means init calendar on .myCalendar wrapper div and APPEND the calendar panel into .subdiv.<br>Another example: `injectMethod='before'`, `injectTo='.subdiv'`, `jQuery(".myCalendars").eventCalendar(myOptions)` means init calendar on `.myCalendar` wrapper div and place the calendar panel before `.subdiv` div (http://api.jquery.com/before/)</td>
 		</tr>
 		<tr>
 			<td>injectTo</td>
 			<td></td>
 			<td>'right_column_div'</td>
-			<td>false = append to the main element which is calendar inited on<br>"string" = find a subtag for appending/prepending whole layout to. Example: ".column-2" = appends or prepends to column-2 class subelement</td>
+			<td>`false` = append to the main element which is calendar inited on<br>`<string>` = name of a subelement for injecting whole layout with the replaceWith/append/prepend/before selected method. Example: `.column-2` = inject to column-2 class subelement of the main element the calendar is inited on.</td>
 		</tr>
 		<tr>
 			<td>startWeekOnMonday</td>
